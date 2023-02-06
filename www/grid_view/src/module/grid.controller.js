@@ -23,6 +23,7 @@
 // Copyright Buildbot Team Members
 
 class Grid {
+    // $stateParams это спциальный параметр angular содержащий компоненты url https://stackoverflow.com/a/23082553/307547
     constructor($scope, $stateParams, $state, resultsService, dataService, bbSettingsService) {
         this.onChange = this.onChange.bind(this);
         this.changeBranch = this.changeBranch.bind(this);
@@ -76,6 +77,7 @@ class Grid {
             order: '-buildrequestid'
         });
         this.builds = this.data.getBuilds({
+            property: ["got_revision"],
             limit: this.buildFetchLimit,
             order: '-buildrequestid'
         });
@@ -89,7 +91,7 @@ class Grid {
 
     dataReady() {
         for (let collection of [this.buildsets, this.changes, this.builders, this.buildrequests, this.builds]) {
-            if (!(collection.$resolved && (collection.length > 0))) {
+            if (!collection.$resolved) {
                 return false;
             }
         }
@@ -103,6 +105,23 @@ class Grid {
             }
         }
         return true;
+    }
+
+    makeFakeChange(codebase, revision, when_timestamp, branch) {
+        let change = {
+            codebase,
+            revision,
+            changeid: revision,
+            when_timestamp,
+            author: `unknown author for ${revision}`,
+            comments: revision + "\n\nFake comment for revision: No change for this revision, please setup a changesource in Buildbot"
+        };
+        if(branch)
+        {
+            change.branch = branch;
+        }
+        
+        return change;
     }
 
     onChange() {
@@ -160,6 +179,31 @@ class Grid {
                 changes = changes.slice(0, this.revisionLimit);
             }
         }
+
+        //
+        for (let build of Array.from(this.builds)) {
+            let changeToAdd = null;
+            const buildrequest = this.buildrequests.get(build.buildrequestid);
+            if (buildrequest) {
+                const buildset = this.buildsets.get(buildrequest.buildsetid);
+                if (buildset && buildset.sourcestamps != null && buildset.sourcestamps.length > 0 &&
+                    build.properties && build.properties.got_revision && build.properties.got_revision.length > 0) {
+                    const revision = build.properties.got_revision[0];
+                    if(revision)
+                    {
+                        let branch = buildset.sourcestamps[0].branch;
+                        if(!changes.some(c => c.changeid === revision))
+                        {
+                            changeToAdd  = this.makeFakeChange("", revision, build.started_at, branch);
+                            changeToAdd.buildsets = {};
+                            changeToAdd.buildsets[buildset.bsid] = buildset;
+                            changes.push(changeToAdd);
+                        }
+                    }
+                }
+            }
+        }
+
         this.$scope.changes = changes;
 
         this.$scope.branches = ((() => {
