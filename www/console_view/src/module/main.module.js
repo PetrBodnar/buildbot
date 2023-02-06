@@ -352,13 +352,16 @@ class Console {
             }
         }
 
+        let branch = buildset != null && buildset.sourcestamps != null && buildset.sourcestamps.length > 0 && buildset.sourcestamps[0].branch != null
+            ? buildset.sourcestamps[0].branch
+            : "";
         if ((change == null) && ((build.properties != null ? build.properties.got_revision : undefined) != null)) {
             const rev = build.properties.got_revision[0];
             // got_revision can be per codebase or just the revision string
             if (typeof(rev) === "string") {
                 change = this.changesByRevision[rev];
                 if ((change == null)) {
-                    change = this.makeFakeChange("", rev, build.started_at);
+                    change = this.makeFakeChange("", rev, build.started_at, branch);
                 }
             } else {
                 let codebase;
@@ -372,20 +375,20 @@ class Console {
 
                 if ((change == null)) {
                     revision = rev === {} ? "" : rev[Object.keys(rev)[0]];
-                    change = this.makeFakeChange(codebase, revision, build.started_at);
+                    change = this.makeFakeChange(codebase, revision, build.started_at, branch);
                 }
             }
         }
 
         if ((change == null)) {
             revision = `unknown revision ${build.builderid}-${build.buildid}`;
-            change = this.makeFakeChange("unknown codebase", revision, build.started_at);
+            change = this.makeFakeChange("unknown codebase", revision, build.started_at, branch);
         }
 
         return change.buildersById[build.builderid].builds.push(build);
     }
 
-    makeFakeChange(codebase, revision, when_timestamp) {
+    makeFakeChange(codebase, revision, when_timestamp, branch) {
         let change = this.changesBySSID[revision];
         if ((change == null)) {
             change = {
@@ -396,6 +399,10 @@ class Console {
                 author: `unknown author for ${revision}`,
                 comments: revision + "\n\nFake comment for revision: No change for this revision, please setup a changesource in Buildbot"
             };
+            if(branch)
+            {
+                change.branch = branch;
+            }
             this.changesBySSID[revision] = change;
             this.populateChange(change);
         }
