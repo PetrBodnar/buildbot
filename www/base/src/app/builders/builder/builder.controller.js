@@ -139,10 +139,13 @@ class BuilderController {
             });
             $scope.buildrequests = builder.getBuildrequests({claimed:false});
             $scope.buildrequests.onNew = buildrequest =>
-                data.getBuildsets(buildrequest.buildsetid).onNew = buildset =>
-                    buildset.getProperties().onNew = properties => buildrequest.properties = properties
-
-            ;
+                data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
+                    let sourcestamps = buildset.sourcestamps;
+                    buildset.getProperties().onNew = function(properties) {
+                        buildrequest.properties = properties;
+                        buildrequest.sourcestamps = sourcestamps;
+                    };
+                };
 
             $scope.builds.onChange = function() {
                 refreshContextMenu();

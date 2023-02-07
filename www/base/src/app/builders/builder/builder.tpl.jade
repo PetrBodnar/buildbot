@@ -11,7 +11,7 @@
             td(width='100px') #
             td(width='150px') Submitted At
             td(width='150px') Owners
-            td Properties
+            td(width='150px') Properties
           tr(ng-repeat='br in buildrequests | orderBy:"-submitted_at"', ng-if="br.claimed==false" )
               td
                 a(ui-sref="buildrequest({buildrequest:br.buildrequestid})")
@@ -23,6 +23,8 @@
                 span(ng-if="br.properties.owners === undefined") {{br.properties.owner[0]}}
                 span(ng-repeat="owner in br.properties.owners[0]") {{owner}}
               td
+                span(ng-if="br.sourcestamps[0].branch") {{br.sourcestamps[0].branch}}
+                span(ng-if="br.sourcestamps[0].revision") {{br.sourcestamps[0].revision}}
       uib-tab(heading="Build times")
         line-plot(data="successful_builds", xattr="started_at", yattr="duration", xunit="timestamp", yunit="seconds", width=800, height=200)
       uib-tab(heading="Success Rate")
