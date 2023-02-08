@@ -98,7 +98,7 @@ class Console {
         }
 
         this.$scope.builds = (this.builds = this.dataAccessor.getBuilds({
-            property: ["got_revision"],
+            property: ["owners", "got_revision"],
             limit: this.buildLimit,
             order: '-started_at'
         }));
@@ -361,7 +361,7 @@ class Console {
             if (typeof(rev) === "string") {
                 change = this.changesByRevision[rev];
                 if ((change == null)) {
-                    change = this.makeFakeChange("", rev, build.started_at, branch);
+                    change = this.makeFakeChange("", rev, build.started_at, branch, build.properties.owners[0][0]);
                 }
             } else {
                 let codebase;
@@ -375,20 +375,20 @@ class Console {
 
                 if ((change == null)) {
                     revision = rev === {} ? "" : rev[Object.keys(rev)[0]];
-                    change = this.makeFakeChange(codebase, revision, build.started_at, branch);
+                    change = this.makeFakeChange(codebase, revision, build.started_at, branch, build.properties.owners[0][0]);
                 }
             }
         }
 
         if ((change == null)) {
             revision = `unknown revision ${build.builderid}-${build.buildid}`;
-            change = this.makeFakeChange("unknown codebase", revision, build.started_at, branch);
+            change = this.makeFakeChange("unknown codebase", revision, build.started_at, branch, build.properties.owners[0][0]);
         }
 
         return change.buildersById[build.builderid].builds.push(build);
     }
 
-    makeFakeChange(codebase, revision, when_timestamp, branch) {
+    makeFakeChange(codebase, revision, when_timestamp, branch, owner) {
         let change = this.changesBySSID[revision];
         if ((change == null)) {
             change = {
@@ -400,9 +400,10 @@ class Console {
                 comments: revision + "\n\nFake comment for revision: No change for this revision, please setup a changesource in Buildbot"
             };
             if(branch)
-            {
                 change.branch = branch;
-            }
+            if(owner)
+                change.owner = owner;
+            
             this.changesBySSID[revision] = change;
             this.populateChange(change);
         }
