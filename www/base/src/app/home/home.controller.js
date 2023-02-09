@@ -10,8 +10,8 @@ class Home {
         $scope.config = config;
 
         const data = dataService.open().closeOnDestroy($scope);
-        $scope.buildsRunning = data.getBuilds({order: '-started_at', complete: false});
-        $scope.recentBuilds = data.getBuilds({order: '-buildid', complete: true, limit:20});
+        $scope.buildsRunning = data.getBuilds({order: '-started_at', complete: false, property: ["owners"]});
+        $scope.recentBuilds = data.getBuilds({order: '-buildid', complete: true, limit:20, property: ["owners"]});
         $scope.builders = data.getBuilders();
         $scope.hasBuilds = b => (b.builds != null ? b.builds.length : undefined) > 0;
 
@@ -31,6 +31,24 @@ class Home {
 
         $scope.recentBuilds.onChange = updateBuilds;
         $scope.builders.onChange = updateBuilds;
+
+        $scope.buildsRunning.onNew = function(build) {
+            data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
+                data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
+                    build.branch = buildset.sourcestamps[0].branch;
+                    build.owner = build.properties.owners[0][0];
+                };
+            };
+        };
+
+        $scope.recentBuilds.onNew = function(build) {
+            data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
+                data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
+                    build.branch = buildset.sourcestamps[0].branch;
+                    build.owner = build.properties.owners[0][0];
+                };
+            };
+        };
     }
 }
 

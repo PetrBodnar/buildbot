@@ -3,7 +3,7 @@
     .row
       span.pull-right.label(ng-class="results2class(build)") {{results2text(build)}}
       a(ui-sref="build({builder:builder.builderid, build:build.number})")
-        | {{builder.name}}/{{build.number}}
+        | {{builder.name}}/{{build.number}}  {{build.branch}}  {{build.owner}}
     .row
       span.pull-right(ng-show="build.complete")
           | {{(build.complete_at - build.started_at)| durationformat:'LLL' }}
