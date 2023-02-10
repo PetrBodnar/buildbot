@@ -420,7 +420,7 @@ setup_args = {
             ('buildbot.util.ssfilter', ['SourceStampFilter']),
             ('buildbot.www.avatar', ['AvatarGravatar', 'AvatarGitHub']),
             ('buildbot.www.auth', [
-                'UserPasswordAuth', 'HTPasswdAuth', 'RemoteUserAuth', 'CustomAuth']),
+                'UserPasswordAuth', 'HTPasswdAuth', 'RemoteUserAuth', 'CustomAuth', 'UserInfoProviderBase']),
             ('buildbot.www.ldapuserinfo', ['LdapUserInfo']),
             ('buildbot.www.oauth2', [
                 'GoogleAuth', 'GitHubAuth', 'GitLabAuth', 'BitbucketAuth']),
