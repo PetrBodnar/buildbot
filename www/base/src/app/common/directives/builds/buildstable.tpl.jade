@@ -9,9 +9,10 @@
         td(width='150px') Started At
         td(width='150px') Duration
         td(width='200px') Owners
+        td(width='200px') Branch
         td(width='150px') Worker
         td Status
-      tr(ng-repeat='build in builds | orderBy:"-started_at"')
+      tr(ng-repeat="build in builds | orderBy:'-started_at'")
           td(ng-show="builders") {{ builders.get(build.builderid).name }}
           td
             a.bb-buildid-link(ui-sref="build({builder:build.builderid, build:build.number})")
@@ -34,6 +35,11 @@
               | {{(build.complete_at - build.started_at)| duration }}
           td
             span(ng-repeat="owner in build.properties.owners[0]") {{owner}}
+          td
+            span(ng-show="build.branch")
+              | {{build.branch}}
+            span(ng-show="!build.branch")
+              | {{build.properties.got_revision[0]}}
           td
             a(ui-sref='worker({worker: build.workerid})')
               | {{build.properties.workername[0]}}

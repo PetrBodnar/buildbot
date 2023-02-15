@@ -133,7 +133,7 @@ class BuilderController {
                 $scope.numbuilds = +$stateParams.numbuilds;
             }
             $scope.builds = builder.getBuilds({
-                property: ["owners", "workername"],
+                property: ["owners", "workername", "got_revision"],
                 limit: $scope.numbuilds,
                 order: '-number'
             });
@@ -144,8 +144,17 @@ class BuilderController {
                     buildset.getProperties().onNew = function(properties) {
                         buildrequest.properties = properties;
                         buildrequest.sourcestamps = sourcestamps;
+                    }
+                };
+            
+            $scope.builds.onNew = function(build) {
+                data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
+                    data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
+                        build.branch = buildset.sourcestamps[0].branch;
                     };
                 };
+            };
+
 
             $scope.builds.onChange = function() {
                 refreshContextMenu();
