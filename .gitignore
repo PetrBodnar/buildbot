@@ -45,6 +45,7 @@ sandbox.*
 .idea/
 /.venv*/
 venv/
+bs_playground/
 # www
 */node_modules/
 node_modules
