@@ -600,7 +600,7 @@ class Build(properties.PropertiesMixin):
             self.master.data.updates.setBuildStateString(self.buildid,
                                                          bytes2unicode(" ".join(self.text)))
         self.results, terminate = computeResultAndTermination(step, results,
-                                                              self.results)
+                                                              self.results, True)
         if not self.conn:
             # force the results to retry if the connection was lost
             self.results = RETRY

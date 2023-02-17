@@ -39,7 +39,10 @@ def worst_status(a, b):
     return None
 
 
-def computeResultAndTermination(obj, result, previousResult):
+def computeResultAndTermination(obj, result, previousResult, retry_not_cancel=False):
+    if retry_not_cancel and result == CANCELLED and previousResult == RETRY:
+        return RETRY, True
+    
     possible_overall_result = result
     terminate = False
     if result == FAILURE:
