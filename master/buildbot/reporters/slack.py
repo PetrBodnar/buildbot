@@ -116,7 +116,7 @@ class SlackStatusPush(http.HttpStatusPush):
     @defer.inlineCallbacks
     def sendMessage(self, reports):
         for report in reports:
-            traceback.print_stack()
+            # traceback.print_stack()
             # see master/buildbot/process/results.py and master/docs/manual/configuration/reporters/reporter_base.rst
             logger.error("report " + safe_serialize(report))
             
