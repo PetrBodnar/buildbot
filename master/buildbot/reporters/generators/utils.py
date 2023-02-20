@@ -18,7 +18,7 @@ from twisted.python import log
 
 from buildbot import config
 from buildbot import util
-from buildbot.process.results import CANCELLED
+from buildbot.process.results import CANCELLED, RETRY
 from buildbot.process.results import EXCEPTION
 from buildbot.process.results import FAILURE
 from buildbot.process.results import SUCCESS
@@ -125,6 +125,8 @@ class BuildStatusGeneratorMixin(util.ComparableMixin):
         if "exception" in self.mode and results == EXCEPTION:
             return True
         if "cancelled" in self.mode and results == CANCELLED:
+            return True
+        if "retry" in self.mode and results == RETRY:
             return True
 
         return False

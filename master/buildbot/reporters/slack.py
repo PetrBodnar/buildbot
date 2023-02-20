@@ -221,4 +221,4 @@ class SlackFailStatusPush(SlackStatusPush):
     neededDetails = dict(wantProperties=True)
     
     def sendOnStatuses(self):
-        return ["failure", "skipped", "exception", "cancelled"]
+        return ["failure", "skipped", "exception", "cancelled", "retry"]
