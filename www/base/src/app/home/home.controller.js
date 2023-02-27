@@ -32,7 +32,11 @@ class Home {
         $scope.recentBuilds.onChange = updateBuilds;
         $scope.builders.onChange = updateBuilds;
 
-        $scope.buildsRunning.onNew = function(build) {
+        let onNewBuild = function(build) {
+            build.getProperties().onNew = function(properties)
+            {
+                build.buildProperties = properties;
+            };
             data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
                 data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
                     build.branch = buildset.sourcestamps[0].branch;
@@ -41,14 +45,8 @@ class Home {
             };
         };
 
-        $scope.recentBuilds.onNew = function(build) {
-            data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
-                data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
-                    build.branch = buildset.sourcestamps[0].branch;
-                    build.owner = build.properties.owners[0][0];
-                };
-            };
-        };
+        $scope.buildsRunning.onNew = onNewBuild;
+        $scope.recentBuilds.onNew = onNewBuild;
     }
 }
 
