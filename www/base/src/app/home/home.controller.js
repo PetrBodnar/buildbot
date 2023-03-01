@@ -5,7 +5,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 class Home {
-    constructor($scope, dataService, config, $location) {
+    constructor($scope, dataService, config, $location, $state) {
         $scope.baseurl = $location.absUrl().split("#")[0];
         $scope.config = config;
 
@@ -32,6 +32,17 @@ class Home {
         $scope.recentBuilds.onChange = updateBuilds;
         $scope.builders.onChange = updateBuilds;
 
+        $scope.builders.onNew = function(builder) {
+            builder.getForceschedulers().onChange = function(forceschedulers)
+            {
+                builder.forceBuild = function () {
+                    return $state.go("builder.forcebuilder",
+                        {builder:builder.builderid,
+                            scheduler:forceschedulers[0].name});
+                };
+            };
+        };
+
         let onNewBuild = function(build) {
             build.getProperties().onNew = function(properties)
             {
@@ -52,4 +63,4 @@ class Home {
 
 
 angular.module('app')
-.controller('homeController', ['$scope', 'dataService', 'config', '$location', Home]);
+.controller('homeController', ['$scope', 'dataService', 'config', '$location', '$state', Home]);
