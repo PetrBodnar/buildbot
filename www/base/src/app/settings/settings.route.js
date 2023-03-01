@@ -5,29 +5,29 @@ class Settings {
         const name = 'settings';
 
         // Menu configuration
-        glMenuServiceProvider.addGroup({
-            name,
-            caption: 'Settings',
-            icon: 'sliders',
-            order: 99
-        });
+        // glMenuServiceProvider.addGroup({
+        //     name,
+        //     caption: 'Settings',
+        //     icon: 'sliders',
+        //     order: 99
+        // });
 
         // Configuration
-        const cfg = {
-            group: name,
-            caption: 'Settings'
-        };
-
-        // Register new state
-        const state = {
-            controller: `${name}Controller`,
-            template: require('./settings.tpl.jade'),
-            name,
-            url: '/settings',
-            data: cfg
-        };
-
-        $stateProvider.state(state);
+        // const cfg = {
+        //     group: name,
+        //     caption: 'Settings'
+        // };
+        //
+        // // Register new state
+        // const state = {
+        //     controller: `${name}Controller`,
+        //     template: require('./settings.tpl.jade'),
+        //     name,
+        //     url: '/settings',
+        //     data: cfg
+        // };
+        //
+        // $stateProvider.state(state);
     }
 }
 

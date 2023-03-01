@@ -2,25 +2,25 @@ class ChangesState {
     constructor($stateProvider, bbSettingsServiceProvider) {
 
         // Name of the state
-        const name = 'changes';
-
-        // Configuration
-        const cfg = {
-            group: "builds",
-            caption: 'Last Changes'
-        };
-
-        // Register new state
-        const state = {
-            controller: `${name}Controller`,
-            template: require('./changes.tpl.jade'),
-            name,
-            url: '/changes?id',
-            data: cfg,
-            reloadOnSearch: false
-        };
-
-        $stateProvider.state(state);
+        // const name = 'changes';
+        //
+        // // Configuration
+        // const cfg = {
+        //     group: "builds",
+        //     caption: 'Last Changes'
+        // };
+        //
+        // // Register new state
+        // const state = {
+        //     controller: `${name}Controller`,
+        //     template: require('./changes.tpl.jade'),
+        //     name,
+        //     url: '/changes?id',
+        //     data: cfg,
+        //     reloadOnSearch: false
+        // };
+        //
+        // $stateProvider.state(state);
 
         bbSettingsServiceProvider.addSettingsGroup({
             name:'Changes',

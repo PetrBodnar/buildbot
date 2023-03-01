@@ -6,15 +6,15 @@ class BuildersState {
 
         // Menu configuration
         glMenuServiceProvider.addGroup({
-            name: "builds",
-            caption: 'Builds',
+            name: name,
+            caption: 'Builders',
             icon: 'cogs',
             order: 10
         });
 
         // Configuration
         const cfg = {
-            group: "builds",
+            group: name,
             caption: 'Builders'
         };
 
