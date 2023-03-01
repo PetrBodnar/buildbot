@@ -25,7 +25,7 @@ class _glPageWithSidebar {
         this.$scope = $scope;
         this.$timeout = $timeout;
         this.$window = $window;
-        this.sidebarPinned = this.$window.innerWidth > 800;
+        this.sidebarPinned = true; // this.$window.innerWidth > 800;
         // If user has previously pinned or unpinned the sidebar, use the saved value from localStorage
         const sidebarWasPinned = this.$window.localStorage.sidebarPinned;
         if ( (sidebarWasPinned === "true") || (sidebarWasPinned === "false") ) { // note -- localstorage only stores strings,  converts bools to string.
