@@ -13,5 +13,6 @@ nav.navbar.navbar-default
                     a(ng-if="b.sref", ui-sref="{{b.sref}}") {{b.caption}}
                     a(ng-if="b.href", ng-href="{{b.href}}") {{b.caption}}
                     span(ng-if="b.href == undefined && b.sref == undefined", ng-href="{{b.href}}") {{b.caption}}
+                i.fa.fa-copy.clickable(ng-show="shouldShowCopyButton && shouldShowCopyButton()" style="vertical-align:top; padding:0 0.5ex" ng-click="copyCurrentUrl()")
         .navbar-collapse.collapse.pull-right(ng-class='{"in": !collapse}')
             ul.nav.navbar-nav(ng-transclude)

@@ -110,7 +110,7 @@ class BuilderController {
                 }
                 _.forEach($scope.forceschedulers, sch =>
                     actions.push({
-                        caption: sch.button_name,
+                        caption: "Force Build",
                         extra_class: "btn-primary",
                         action() {
                             return $state.go("builder.forcebuilder",
@@ -148,6 +148,11 @@ class BuilderController {
                 };
             
             $scope.builds.onNew = function(build) {
+                build.getProperties().onNew = function(properties)
+                {
+                    build.buildProperties = properties;
+                };
+
                 data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
                     data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
                         build.branch = buildset.sourcestamps[0].branch;

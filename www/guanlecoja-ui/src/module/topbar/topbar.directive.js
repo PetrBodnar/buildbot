@@ -19,7 +19,7 @@ class GlTopbar {
 }
 
 class _glTopbar {
-    constructor($scope, glMenuService, $location) {
+    constructor($scope, glMenuService, $location, $state) {
         let groups = glMenuService.getGroups();
         groups = _.zipObject(_.map(groups, g => g.name), groups);
         $scope.appTitle = glMenuService.getAppTitle();
@@ -37,10 +37,30 @@ class _glTopbar {
         });
 
         $scope.$on("glBreadcrumb", (e, data) => $scope.breadcrumb = data);
+
+        $scope.shouldShowCopyButton = function () {
+            //console.log("$state.current.name: " + $state.current.name);
+            return $state.current.name === "build";
+        }
+
+        $scope.copyCurrentUrl = function() {
+            let value = window.location.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(value);
+            } else {
+                var element = document.createElement('textarea');
+                element.style = 'position:absolute; width:1px; height:1px; top:-10000px; left:-10000px';
+                element.value = value;
+                document.body.appendChild(element);
+                element.select();
+                document.execCommand('copy');
+                document.body.removeChild(element);
+            }
+        }
     }
 }
 
 
 angular.module('guanlecoja.ui')
 .directive('glTopbar', [GlTopbar])
-.controller('_glTopbarController', ['$scope', 'glMenuService', '$location', _glTopbar]);
+.controller('_glTopbarController', ['$scope', 'glMenuService', '$location', '$state', _glTopbar]);
