@@ -512,6 +512,8 @@ class CodebaseParameter(NestedParameter):
     type = NestedParameter.type
     codebase = ''
 
+    layout = "simple"
+
     def __init__(self,
                  codebase,
                  name=None,
@@ -737,8 +739,11 @@ class ForceScheduler(base.BaseScheduler):
             self.forcedProperties.extend(properties)
 
         # this is used to simplify the template
-        self.all_fields = [NestedParameter(name='', fields=[username, reason])]
-        self.all_fields.extend(self.forcedProperties)
+        self.all_fields = self.forcedProperties
+
+        name_and_reason_param = NestedParameter(name='', fields=[username, reason])
+        name_and_reason_param.layout = "simple"
+        self.all_fields.extend([name_and_reason_param])
 
         self.reasonString = reasonString
         self.buttonName = buttonName or name
