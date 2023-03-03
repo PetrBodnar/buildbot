@@ -1,15 +1,15 @@
 class GetAndSortProperties {
     constructor() {
-        const preferredSortingOrder = [
-            'branch',
-            'got_revision',
-            'owner',
-            'buildType',
-            'obfuscate',
-            'profiler',
-            'appStore',
-            'testFlight',
-        ];
+        const preferredSortingOrder = {
+            'branch':'Branch',
+            'got_revision':'Revision',
+            'owner':'Owner',
+            'buildType':'Type',
+            'obfuscate':'Obfuscate',
+            'profiler':'Profiler',
+            'appStore':'AppStore',
+            'testFlight':'TestFlight',
+        };
         
         return function(object) {
             if ((object == null)) {
@@ -18,9 +18,14 @@ class GetAndSortProperties {
             
             let result = {};
 
-            for (let i = 0; i < preferredSortingOrder.length; i++) {
-                if (object[preferredSortingOrder[i]])
-                    result[preferredSortingOrder[i]] = object[preferredSortingOrder[i]]; 
+            for (var key in preferredSortingOrder) {
+                // check if the property/key is defined in the object itself, not in parent
+                if (preferredSortingOrder.hasOwnProperty(key)) {
+                    let value = object[key];
+                    if (value) {
+                        result[preferredSortingOrder[key]] = value;
+                    }
+                }
             }
             
             return result;

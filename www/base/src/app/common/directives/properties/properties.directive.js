@@ -11,8 +11,9 @@ class Properties {
 }
 
 function _properties($scope) {
-    $scope.copy = function(value) {
-        value = JSON.stringify(value);
+    $scope.copy = function(value, jsonify=true) {
+        if(jsonify)
+            value = JSON.stringify(value);
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(value);
