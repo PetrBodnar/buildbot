@@ -43,9 +43,26 @@ class Dateformat {
     }
 }
 
+class DateformatWithLessThanDayNoDate {
+    constructor(MOMENT) {
+        return function (time, f) {
+            if (time < 0)
+                return ""
+            const timeMoment = MOMENT.utc(time * 1000); 
+            const todayMidnight = MOMENT.utc().startOf('day');
+            if(todayMidnight.isAfter(timeMoment))
+                return MOMENT.unix(time).format(f);
+            
+            let newFormat = f.replace(' DD.MM.YY', '');
+            return MOMENT.unix(time).format(newFormat);
+        };
+    }
+}
+
 
 angular.module('common')
 .filter('timeago', ['MOMENT', Timeago])
 .filter('duration', ['MOMENT', Duration])
 .filter('durationformat', ['MOMENT', Durationformat])
-.filter('dateformat', ['MOMENT', Dateformat]);
+.filter('dateformat', ['MOMENT', Dateformat])
+.filter('dateformatwithlessthandaynodate', ['MOMENT', DateformatWithLessThanDayNoDate]);
