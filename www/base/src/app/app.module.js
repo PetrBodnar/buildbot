@@ -64,6 +64,7 @@ require('./common/directives/forcefields/forcefields.directive.js');
 require('./common/directives/lineplot/lineplot.directive.js');
 require('./common/directives/loginbar/loginbar.directive.js');
 require('./common/directives/properties/properties.directive.js');
+require('./common/directives/buildProperties/buildProperties.directive.js');
 require('./common/directives/rawdata/rawdata.directive.js');
 require('./common/directives/windowtitle/windowtitle.directive.js');
 require('./common/filters/encodeURI.filter.js');
