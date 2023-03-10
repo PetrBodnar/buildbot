@@ -17,7 +17,19 @@ class Home {
 
         const updateBuilds = function() {
             const byNumber = (a, b) => a.number - b.number;
-            return $scope.recentBuilds.forEach(function(build) {
+
+            $scope.buildsRunning.forEach(function(build) {
+                const builder = $scope.builders.get(build.builderid);
+                if (builder != null) {
+                    if (builder.buildsRunning == null) { builder.buildsRunning = []; }
+                    if (builder.buildsRunning.indexOf(build) < 0) {
+                        builder.buildsRunning.push(build);
+                        builder.buildsRunning.sort(byNumber);
+                    }
+                }
+            });
+            
+            let forEach = $scope.recentBuilds.forEach(function(build) {
                 const builder = $scope.builders.get(build.builderid);
                 if (builder != null) {
                     if (builder.builds == null) { builder.builds = []; }
@@ -27,8 +39,10 @@ class Home {
                     }
                 }
             });
+            return forEach;
         };
 
+        $scope.buildsRunning.onChange = updateBuilds;
         $scope.recentBuilds.onChange = updateBuilds;
         $scope.builders.onChange = updateBuilds;
 
