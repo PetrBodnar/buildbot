@@ -26,8 +26,8 @@ class BuilderController {
                 builder: builder['name']});
             $scope.builder = builder;
             const breadcrumb = [{
-                    caption: "Builders",
-                    sref: "builders"
+                    caption: "Home",
+                    sref: "home"
                 }
                 , {
                     caption: builder.name,

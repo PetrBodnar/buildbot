@@ -19,8 +19,8 @@ class StepController {
                     const step = steps[0];
                     faviconService.setFavIcon(step);
                     glBreadcrumbService.setBreadcrumb([{
-                        caption: "Builders",
-                        sref: "builders"
+                        caption: "Home",
+                        sref: "home"
                     }
                     , {
                         caption: builder.name,

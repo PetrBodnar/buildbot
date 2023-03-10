@@ -29,8 +29,8 @@ class LogController {
                     step.getLogs(slug).onNew = function(log) {
                         $scope.log = log;
                         glBreadcrumbService.setBreadcrumb([{
-                                caption: "Builders",
-                                sref: "builders"
+                                caption: "Home",
+                                sref: "home"
                             }
                             , {
                                 caption: builder.name,

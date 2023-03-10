@@ -132,8 +132,8 @@ class BuildController {
                 }
 
                 const breadcrumb = [{
-                        caption: "Builders",
-                        sref: "builders"
+                        caption: "Home",
+                        sref: "home"
                     }
                     , {
                         caption: builder.name,

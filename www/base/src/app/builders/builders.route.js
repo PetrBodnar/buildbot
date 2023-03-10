@@ -2,33 +2,33 @@ class BuildersState {
     constructor($stateProvider, glMenuServiceProvider, bbSettingsServiceProvider) {
 
         // Name of the state
-        const name = 'builders';
+        // const name = 'builders';
 
         // Menu configuration
-        glMenuServiceProvider.addGroup({
-            name: name,
-            caption: 'Builders',
-            icon: 'cogs',
-            order: 10
-        });
+        // glMenuServiceProvider.addGroup({
+        //     name: name,
+        //     caption: 'Builders',
+        //     icon: 'cogs',
+        //     order: 10
+        // });
 
         // Configuration
-        const cfg = {
-            group: name,
-            caption: 'Builders'
-        };
+        // const cfg = {
+        //     group: name,
+        //     caption: 'Builders'
+        // };
+        //
+        // // Register new state
+        // const state = {
+        //     controller: `${name}Controller`,
+        //     template: require('./builders.tpl.jade'),
+        //     name,
+        //     url: '/builders?tags',
+        //     data: cfg,
+        //     reloadOnSearch: false
+        // };
 
-        // Register new state
-        const state = {
-            controller: `${name}Controller`,
-            template: require('./builders.tpl.jade'),
-            name,
-            url: '/builders?tags',
-            data: cfg,
-            reloadOnSearch: false
-        };
-
-        $stateProvider.state(state);
+        // $stateProvider.state(state);
 
         bbSettingsServiceProvider.addSettingsGroup({
             name:'Builders',
