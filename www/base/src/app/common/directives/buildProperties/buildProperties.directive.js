@@ -13,8 +13,8 @@ class BuildProperties {
 }
 
 class _buildProperties {
-    constructor($scope, $interval) {
-        var self = this;
+    constructor($scope, $interval, resultsService) {
+        _.mixin($scope, resultsService);
         const stop = $interval(() => {
             $interval.cancel(stop);
 
@@ -59,4 +59,4 @@ class _buildProperties {
 
 angular.module('common')
 .directive('buildProperties', [BuildProperties])
-.controller('_buildPropertiesController', ['$scope', '$interval', _buildProperties]);
+.controller('_buildPropertiesController', ['$scope', '$interval', 'resultsService', _buildProperties]);
