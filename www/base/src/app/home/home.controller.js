@@ -13,7 +13,8 @@ class Home {
         $scope.buildsRunning = data.getBuilds({order: '-started_at', complete: false, property: ["owners"]});
         $scope.recentBuilds = data.getBuilds({order: '-buildid', complete: true, limit:20, property: ["owners"]});
         $scope.builders = data.getBuilders();
-        $scope.hasBuilds = b => (b.builds != null ? b.builds.length : undefined) > 0;
+        $scope.hasBuilds = b => (b.builds != null ? b.builds.length : undefined) > 0 || 
+            (b.buildsRunning != null ? b.buildsRunning.length : undefined) > 0;
 
         const updateBuilds = function() {
             const byNumber = (a, b) => a.number - b.number;
