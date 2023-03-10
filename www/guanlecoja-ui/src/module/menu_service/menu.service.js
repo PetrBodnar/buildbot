@@ -51,7 +51,13 @@ class GlMenu {
                 getGroups() { return groups; },
                 getDefaultGroup() { return self.defaultGroup; },
                 getFooter() { return self.footer; },
-                getAppTitle() { return self.appTitle; }
+                getAppTitle() { return self.appTitle; },
+                addGroupDynamically(group, index) {
+                    group.items = [];
+                    if (group.order == null) { group.order = 99; }
+                    groups[index] = group;
+                    return groups;
+                },
             };
         }
         ];

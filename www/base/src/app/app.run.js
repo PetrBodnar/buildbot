@@ -87,4 +87,21 @@ class ReconnectingListener {
 
 angular.module('app')
 .run(['$rootScope', '$log', 'config', 'glNotificationService', RouteChangeListener])
-.run(['$rootScope', '$log', 'socketService', '$interval', '$http', '$window', '$timeout', ReconnectingListener]);
+.run(['$rootScope', '$log', 'socketService', '$interval', '$http', '$window', '$timeout', ReconnectingListener])
+.run(['$rootScope', 'dataService', 'glMenuService', function ($rootScope, dataService, glMenuService) {
+    const data = dataService.open().closeOnDestroy($rootScope);
+    var builders = data.getBuilders();
+    var indexToAdd = glMenuService.getGroups().length;
+    builders.onNew = function(builder) {
+        var group = {};
+        group.name = builder.name;
+        group.caption = builder.name;
+        group.items = [];
+        group.sref = `builder({builder: '${builder.builderid}'})`;
+        glMenuService.addGroupDynamically(group, indexToAdd);
+        indexToAdd++;
+        
+        $rootScope.$apply();
+    }
+}])
+;
