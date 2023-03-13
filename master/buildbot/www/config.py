@@ -134,6 +134,12 @@ class IndexResource(resource.Resource):
             self.custom_templates = self.parseCustomTemplateDir(template_dir)
 
     def render_GET(self, request):
+        wwwconfig = self.master.www
+        userinfos = wwwconfig.getUserInfos(request)
+        if 'anonymous' in userinfos and not type(wwwconfig.auth).__name__ == 'FailAuth':
+            from twisted.web.util import redirectTo
+            return redirectTo(b"auth/login", request)
+
         return self.asyncRenderHelper(request, self.renderIndex)
 
     def parseCustomTemplateDir(self, template_dir):
