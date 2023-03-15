@@ -36,6 +36,16 @@ class Home {
             builder.buildsRunning.onNew = onNewBuild;
             builder.recentBuilds.onNew = onNewBuild;
 
+            builder.buildrequests = data.getBuildrequests({claimed:false});
+            builder.buildrequests.onNew = buildrequest => {
+                data.getBuildsets(buildrequest.buildsetid).onNew = function (buildset) {
+                    buildset.getProperties().onNew = properties => {
+                        buildrequest.buildProperties = properties;  // publicFieldsFilter(properties);
+                    };
+                    buildrequest.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
+                };
+            };
+            
             // builder.buildsRunning.forEach(function(build) {
             //     const builder = $scope.builders.get(build.builderid);
             //     if (builder != null) {
