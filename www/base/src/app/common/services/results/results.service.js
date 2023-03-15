@@ -64,16 +64,20 @@ class resultsService {
                 return _isBundlesBuild(build);
             },
             
-            results2class(build_or_step, pulse) {
+            results2class(build_or_step_or_br, pulse) {
                 let ret = "results_UNKNOWN";
-                if (build_or_step != null) {
-                    if(build_or_step.complete === true && _isBundlesBuild(build_or_step))
+                // buildrequest
+                if(typeof build_or_step_or_br.submitted_at !== 'undefined')
+                    return ret;
+                
+                if (build_or_step_or_br != null) {
+                    if(build_or_step_or_br.complete === true && _isBundlesBuild(build_or_step_or_br))
                         return "results_BUNDLES";
                     
-                    if ((build_or_step.results != null) && _.has(RESULTS_TEXT, build_or_step.results)) {
-                        ret = `results_${RESULTS_TEXT[build_or_step.results]}`;
+                    if ((build_or_step_or_br.results != null) && _.has(RESULTS_TEXT, build_or_step_or_br.results)) {
+                        ret = `results_${RESULTS_TEXT[build_or_step_or_br.results]}`;
                     }
-                    if ((build_or_step.complete === false)  && (build_or_step.started_at > 0)) {
+                    if ((build_or_step_or_br.complete === false)  && (build_or_step_or_br.started_at > 0)) {
                         ret = 'results_PENDING';
                         if (pulse != null) {
                             ret += ` ${pulse}`;

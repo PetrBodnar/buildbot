@@ -25,7 +25,7 @@ class Home {
                 data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
                     data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
                         build.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
-                        build.owner = build.properties.owners[0][0];
+                        build.fullUserName = build.properties.owners[0][0].split('@')[0];
                     };
                 };
             };
@@ -36,11 +36,14 @@ class Home {
             builder.buildsRunning.onNew = onNewBuild;
             builder.recentBuilds.onNew = onNewBuild;
 
-            builder.buildrequests = data.getBuildrequests({claimed:false});
+            builder.buildrequests = builder.getBuildrequests({claimed:false});
             builder.buildrequests.onNew = buildrequest => {
                 data.getBuildsets(buildrequest.buildsetid).onNew = function (buildset) {
                     buildset.getProperties().onNew = properties => {
                         buildrequest.buildProperties = properties;  // publicFieldsFilter(properties);
+                        buildrequest.fullUserName = buildrequest.buildProperties.owners
+                            ? buildrequest.buildProperties.owners[0][0].split('@')[0]
+                            : buildrequest.buildProperties.owner[0].split('@')[0];
                     };
                     buildrequest.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
                 };

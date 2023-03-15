@@ -142,12 +142,16 @@ class BuilderController {
                 data.getBuildsets(buildrequest.buildsetid).onNew = function (buildset) {
                     buildset.getProperties().onNew = properties => {
                         buildrequest.buildProperties = properties;  // publicFieldsFilter(properties);
+                        buildrequest.fullUserName = buildrequest.buildProperties.owners
+                            ? buildrequest.buildProperties.owners[0][0].split('@')[0]
+                            : buildrequest.buildProperties.owner[0].split('@')[0];
                     };
                     buildrequest.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
                 };
             };
             
             $scope.builds.onNew = function(build) {
+                build.fullUserName = build.properties.owners[0][0].split('@')[0];
                 build.getProperties().onNew = function(properties)
                 {
                     build.buildProperties = properties;
