@@ -11,34 +11,34 @@ class resultsService {
                 build.buildProperties.buildType.length > 0 && build.buildProperties.buildType[0] === 'Bundles';
         };
 
-        let _getBuildPropertiesString = function (build) {
+        let _getBuildPropertiesString = function (build_or_br) {
             let result = "";
 
-            if(!build || !build.buildProperties || !build.buildProperties.buildType)
+            if(!build_or_br || !build_or_br.buildProperties || !build_or_br.buildProperties.buildType)
                 return result;
 
-            const bundles = _isBundlesBuild(build);
+            const bundles = _isBundlesBuild(build_or_br);
             if(!bundles)
             {
-                if(build.buildProperties.buildType[0] === "Development")
+                if(build_or_br.buildProperties.buildType[0] === "Development")
                     result += "DEV: ";
-                if(build.buildProperties.buildType[0] === "Release")
+                if(build_or_br.buildProperties.buildType[0] === "Release")
                     result += "RELEASE: ";
-                if(build.buildProperties.androidStore && build.buildProperties.androidStore.length > 0)
+                if(build_or_br.buildProperties.androidStore && build_or_br.buildProperties.androidStore.length > 0)
                 {
                     let index = result.indexOf(':');
                     if(index >= 0)
                     {
-                        result = result.slice(0, index) + ' ' + build.buildProperties.androidStore[0] + result.slice(index);
+                        result = result.slice(0, index) + ' ' + build_or_br.buildProperties.androidStore[0] + result.slice(index);
                     }
                 }
-                if(build.buildProperties.useObb && build.buildProperties.useObb[0])
+                if(build_or_br.buildProperties.useObb && build_or_br.buildProperties.useObb[0])
                     result += 'OBB, ';
-                if(build.buildProperties.appStore && build.buildProperties.appStore[0])
+                if(build_or_br.buildProperties.appStore && build_or_br.buildProperties.appStore[0])
                     result += 'AppStore, ';
-                if(build.buildProperties.testFlight && build.buildProperties.testFlight[0])
+                if(build_or_br.buildProperties.testFlight && build_or_br.buildProperties.testFlight[0])
                     result += 'TestFlight, ';
-                if(build.buildProperties.profiler && build.buildProperties.profiler[0])
+                if(build_or_br.buildProperties.profiler && build_or_br.buildProperties.profiler[0])
                     result += 'Profiler, ';
             }
             else {

@@ -138,14 +138,14 @@ class BuilderController {
                 order: '-number'
             });
             $scope.buildrequests = builder.getBuildrequests({claimed:false});
-            $scope.buildrequests.onNew = buildrequest =>
-                data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
-                    let sourcestamps = buildset.sourcestamps;
-                    buildset.getProperties().onNew = function(properties) {
-                        buildrequest.properties = properties;
-                        buildrequest.sourcestamps = sourcestamps;
-                    }
+            $scope.buildrequests.onNew = buildrequest => {
+                data.getBuildsets(buildrequest.buildsetid).onNew = function (buildset) {
+                    buildset.getProperties().onNew = properties => {
+                        buildrequest.buildProperties = properties;  // publicFieldsFilter(properties);
+                    };
+                    buildrequest.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
                 };
+            };
             
             $scope.builds.onNew = function(build) {
                 build.getProperties().onNew = function(properties)
@@ -155,7 +155,7 @@ class BuilderController {
 
                 data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
                     data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
-                        build.branch = buildset.sourcestamps[0].branch;
+                        build.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
                     };
                 };
             };

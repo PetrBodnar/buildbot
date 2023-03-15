@@ -3,7 +3,7 @@ class BuildsTable {
         return {
             replace: true,
             restrict: 'E',
-            scope: {builds: '=?', builder: '=?', builders: '=?'},
+            scope: {builds: '=?', builder: '=?', builders: '=?', buildrequests: "=?"},
             template: require('./buildstable.tpl.jade'),
             controller: '_buildstableController'
         };

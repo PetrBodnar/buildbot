@@ -24,7 +24,7 @@ class Home {
                 };
                 data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
                     data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
-                        build.branch = buildset.sourcestamps[0].branch;
+                        build.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
                         build.owner = build.properties.owners[0][0];
                     };
                 };
