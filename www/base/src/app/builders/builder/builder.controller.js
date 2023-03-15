@@ -151,7 +151,7 @@ class BuilderController {
             };
             
             $scope.builds.onNew = function(build) {
-                build.fullUserName = build.properties.owners[0][0].split('@')[0];
+                build.fullUserName = build.properties.owners ? build.properties.owners[0][0].split('@')[0] : "";
                 build.getProperties().onNew = function(properties)
                 {
                     build.buildProperties = properties;

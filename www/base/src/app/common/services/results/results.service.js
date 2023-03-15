@@ -67,7 +67,7 @@ class resultsService {
             results2class(build_or_step_or_br, pulse) {
                 let ret = "results_UNKNOWN";
                 // buildrequest
-                if(typeof build_or_step_or_br.submitted_at !== 'undefined')
+                if(build_or_step_or_br && typeof build_or_step_or_br.submitted_at !== 'undefined')
                     return ret;
                 
                 if (build_or_step_or_br != null) {
@@ -87,11 +87,14 @@ class resultsService {
                 return ret;
             },
 
-            results2text(build_or_step) {
+            results2text(build_or_step_or_br) {
                 let ret = "...";
-                if (build_or_step != null) {
-                    if ((build_or_step.results != null) && _.has(RESULTS_TEXT, build_or_step.results)) {
-                        ret = RESULTS_TEXT[build_or_step.results];
+                if (build_or_step_or_br != null) {
+                    if(typeof build_or_step_or_br.submitted_at !== 'undefined')
+                        return "WAIT";
+                    
+                    if ((build_or_step_or_br.results != null) && _.has(RESULTS_TEXT, build_or_step_or_br.results)) {
+                        ret = RESULTS_TEXT[build_or_step_or_br.results];
                     }
                 }
                 return ret;
