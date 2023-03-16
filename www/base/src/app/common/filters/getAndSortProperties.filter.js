@@ -9,6 +9,7 @@ class GetAndSortProperties {
             'profiler':'Profiler',
             'appStore':'AppStore',
             'testFlight':'TestFlight',
+            'reason':'Reason',
         };
         
         return function(object) {
@@ -23,6 +24,8 @@ class GetAndSortProperties {
                 if (preferredSortingOrder.hasOwnProperty(key)) {
                     let value = object[key];
                     if (value) {
+                        if(key === "owner")
+                            value[0] = value[0].split('@')[0];
                         result[preferredSortingOrder[key]] = value;
                     }
                 }
