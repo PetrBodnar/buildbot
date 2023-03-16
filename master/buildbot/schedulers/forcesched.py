@@ -512,7 +512,7 @@ class CodebaseParameter(NestedParameter):
     type = NestedParameter.type
     codebase = ''
 
-    layout = "simple"
+    # layout = "simple"
 
     def __init__(self,
                  codebase,
