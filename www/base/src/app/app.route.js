@@ -15,7 +15,7 @@ class Route {
         let max_title_len = 18;
 
         if (config.title != null) {
-            apptitle = `Buildbot: ${config.title}`;
+            apptitle = `${config.title}`;
             if (apptitle.length > max_title_len) {
                 apptitle = config.title;
             }

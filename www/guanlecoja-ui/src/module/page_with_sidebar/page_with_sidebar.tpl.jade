@@ -1,7 +1,9 @@
 .gl-page-with-sidebar(ng-class="{'active': page.sidebarActive, 'pinned': page.sidebarPinned}")
     .sidebar.sidebar-blue(ng-mouseenter='page.enterSidebar()',ng-mouseleave='page.leaveSidebar()',ng-click='page.sidebarActive=true')
         ul
-            li.sidebar-main
+            li(style="text-indent:5px")
+                img(src="https://i.ibb.co/MCvGxVm/Logo-3.png" alt="background" border="0" style="width:85%;margin: 10px;image-rendering: pixelated;")
+            li.sidebar-title(style="font-size:20px")
                 a(href='javascript:')
                     | {{page.appTitle}}
                     span.menu-icon.fa.fa-bars(ng-hide="page.sidebarActive", ng-click='page.sidebarActive=!page.sidebarActive')
@@ -27,9 +29,10 @@
                             a(ui-sref='{{group.sref}}', ng-click='page.toggleGroup(group)')
                                 | {{group.caption}}
                                 span.menu-icon.fa(ng-class="'fa-' + group.icon")
-        .sidebar-footer
-            .col-xs-4(ng-repeat="item in page.footer")
-                a(ng-href='{{item.href}}')
-                    | {{item.caption}}
+        //.sidebar-footer
+        //    .col-xs-4(ng-repeat="item in page.footer")
+        //        a(ng-href='{{item.href}}')
+        //            | {{item.caption}}
+        img(src="https://i.ibb.co/Yjm7St0/background.png" alt="background" border="0" style="width:100%;image-rendering: pixelated;bottom:0;position:absolute;")
     .content
         div(ng-transclude)
