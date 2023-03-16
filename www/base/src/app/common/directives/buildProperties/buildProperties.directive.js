@@ -16,6 +16,9 @@ class _buildProperties {
     constructor($scope, $interval, resultsService) {
         _.mixin($scope, resultsService);
         const stop = $interval(() => {
+            if(!$scope.build)
+                return;
+            
             $interval.cancel(stop);
 
             $scope.build.getSteps().onNew = function (step) {
