@@ -5,7 +5,7 @@ class BuildProperties {
         return {
             replace: true,
             restrict: 'E',
-            scope: {build: '=', properties: "="},
+            scope: {build: '=?', properties: "="},
             template: require('./buildProperties.tpl.jade'),
             controller: '_buildPropertiesController',
         };
@@ -21,21 +21,20 @@ class _buildProperties {
             
             $interval.cancel(stop);
 
-            $scope.build.getSteps().onNew = function (step) {
-                if (!step.complete || step.results > 1)
-                    return
+            $scope.isBuildRequest = typeof $scope.build.submitted_at !== 'undefined';
+            
+            if(!$scope.isBuildRequest) {
+                $scope.build.getSteps().onNew = function (step) {
+                    if (!step.complete || step.results > 1)
+                        return
 
-                if (step.name == "upload IPA")
-                {
-                    $scope.ipaUrl = step.urls[0].url;
-                } 
-                else if (step.name == "upload APK")
-                {
-                    $scope.apkUrl = step.urls[0].url;
-                }
-                else if (step.name == "upload OBB")
-                {
-                    $scope.obbUrl = step.urls[0].url;
+                    if (step.name == "upload IPA") {
+                        $scope.ipaUrl = step.urls[0].url;
+                    } else if (step.name == "upload APK") {
+                        $scope.apkUrl = step.urls[0].url;
+                    } else if (step.name == "upload OBB") {
+                        $scope.obbUrl = step.urls[0].url;
+                    }
                 }
             }
         }, 500);

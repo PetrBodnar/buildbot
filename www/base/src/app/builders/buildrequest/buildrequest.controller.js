@@ -91,7 +91,10 @@ class BuildrequestController {
 
             data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
                 $scope.buildset = publicFieldsFilter(buildset);
-                buildset.getProperties().onNew  = properties => $scope.properties = publicFieldsFilter(properties);
+                buildset.getProperties().onNew  = function (properties) {
+                    $scope.properties = publicFieldsFilter(properties);
+                    $scope.properties.branch = [buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision, ''];
+                };
             };
         };
     }
