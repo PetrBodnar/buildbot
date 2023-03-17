@@ -33,6 +33,7 @@ from buildbot.db import exceptions
 from buildbot.db import logs
 from buildbot.db import masters
 from buildbot.db import model
+from buildbot.db import pgusers
 from buildbot.db import pool
 from buildbot.db import schedulers
 from buildbot.db import sourcestamps
@@ -87,6 +88,7 @@ class DBConnector(service.ReconfigurableServiceMixin,
     def setServiceParent(self, p):
         yield super().setServiceParent(p)
         self.model = model.Model(self)
+        self.pgusers = pgusers.PgUsersConnectorComponent(self)
         self.changes = changes.ChangesConnectorComponent(self)
         self.changesources = changesources.ChangeSourcesConnectorComponent(
             self)

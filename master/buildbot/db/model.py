@@ -395,6 +395,14 @@ class Model(base.DBConnectorComponent):
                   nullable=False),
     )
 
+    pgusers = sautils.Table(
+        'pgusers', metadata,
+
+        sa.Column('pguserid', sa.String(255), nullable=False, primary_key=True),
+
+        sa.Column('full_name', sa.String(255), nullable=True),
+    )
+
     # Changes to the source code, produced by ChangeSources
     changes = sautils.Table(
         'changes', metadata,
@@ -850,6 +858,7 @@ class Model(base.DBConnectorComponent):
     sa.Index('buildset_properties_buildsetid',
              buildset_properties.c.buildsetid)
     sa.Index('workers_name', workers.c.name, unique=True)
+    sa.Index('pgusers', pgusers.c.pguserid)
     sa.Index('changes_branch', changes.c.branch)
     sa.Index('changes_revision', changes.c.revision)
     sa.Index('changes_author', changes.c.author)
