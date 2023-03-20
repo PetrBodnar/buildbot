@@ -29,9 +29,11 @@ class PgUsersConnectorComponent(base.DBConnectorComponent):
     @defer.inlineCallbacks
     def updatePgUser(self, pguserid, full_name):
 
+        pguserid_bytes = pguserid.encode('utf-8')
+
         pgusers_tbl = self.db.model.pgusers
 
-        self.checkLength(pgusers_tbl.c.pguserid, pguserid)
+        self.checkLength(pgusers_tbl.c.pguserid, pguserid_bytes)
         self.checkLength(pgusers_tbl.c.full_name, full_name)
 
         user = yield self.getPgUser(pguserid)
@@ -41,12 +43,12 @@ class PgUsersConnectorComponent(base.DBConnectorComponent):
 
             if user is None:
                 r = conn.execute(pgusers_tbl.insert(), dict(
-                    pguserid=pguserid,
+                    pguserid=pguserid_bytes,
                     full_name=full_name))
                 # new_pguserid = r.inserted_primary_key[0]
             else:
                 r = conn.execute(
-                    pgusers_tbl.update(whereclause=(pgusers_tbl.c.pguserid == pguserid)).values(full_name=full_name))
+                    pgusers_tbl.update(whereclause=(pgusers_tbl.c.pguserid == pguserid_bytes)).values(full_name=full_name))
 
             transaction.commit()
 
@@ -56,10 +58,12 @@ class PgUsersConnectorComponent(base.DBConnectorComponent):
 
     def getPgUser(self, pguserid):
 
+        pguserid_bytes = pguserid.encode('utf-8')
+
         def thd(conn):
             pgusers_tbl = self.db.model.pgusers
             q = pgusers_tbl.select(
-                whereclause=(pgusers_tbl.c.pguserid == pguserid.encode('utf-8')))
+                whereclause=(pgusers_tbl.c.pguserid == pguserid_bytes))
             rp = conn.execute(q)
             row = rp.fetchone()
             if not row:
