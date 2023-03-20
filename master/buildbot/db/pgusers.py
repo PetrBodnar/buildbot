@@ -17,16 +17,11 @@
 Support for changes in the database
 """
 
-import json
-
-import sqlalchemy as sa
 
 from twisted.internet import defer
 from twisted.python import log
 
 from buildbot.db import base
-from buildbot.util import datetime2epoch
-from buildbot.util import epoch2datetime
 
 
 class PgUsersConnectorComponent(base.DBConnectorComponent):
@@ -39,32 +34,52 @@ class PgUsersConnectorComponent(base.DBConnectorComponent):
         self.checkLength(pgusers_tbl.c.pguserid, pguserid)
         self.checkLength(pgusers_tbl.c.full_name, full_name)
 
+        user = yield self.getPgUser(pguserid)
+
         def thd(conn):
             transaction = conn.begin()
 
-            r = conn.execute(pgusers_tbl.insert(), dict(
-                pguserid=pguserid,
-                full_name=full_name))
-            new_pguserid = r.inserted_primary_key[0]
+            if user is None:
+                r = conn.execute(pgusers_tbl.insert(), dict(
+                    pguserid=pguserid,
+                    full_name=full_name))
+                # new_pguserid = r.inserted_primary_key[0]
+            else:
+                r = conn.execute(
+                    pgusers_tbl.update(whereclause=(pgusers_tbl.c.pguserid == pguserid)).values(full_name=full_name))
 
             transaction.commit()
 
-            return new_pguserid
+            return None
+
         return (yield self.db.pool.do(thd))
 
-    # returns a Deferred that returns a value
-    @base.cached("chdicts")
     def getPgUser(self, pguserid):
 
         def thd(conn):
             pgusers_tbl = self.db.model.pgusers
             q = pgusers_tbl.select(
-                whereclause=(pgusers_tbl.c.pguserid == pguserid))
+                whereclause=(pgusers_tbl.c.pguserid == pguserid.encode('utf-8')))
             rp = conn.execute(q)
             row = rp.fetchone()
             if not row:
                 return None
 
-            return {'pguserid': row.pguserid, 'full_name': row.full_name}
+            result = {'pguserid': row.pguserid.decode('utf-8'), 'full_name': row.full_name}
+            # logger.error("result getPgUsers2: result={result}", result=result)
+            return result
+
+        return self.db.pool.do(thd)
+
+    def getPgUsers(self):
+        def thd(conn):
+            pgusers_tbl = self.db.model.pgusers
+            q = pgusers_tbl.select()
+            rp = conn.execute(q)
+            rows = rp.fetchall()
+            result = [{'pguserid': row.pguserid.decode('utf-8'), 'full_name': row.full_name} for row in rows]
+            # logger.error("result getPgUsers: result={result}", result=result)
+
+            return result
 
         return self.db.pool.do(thd)

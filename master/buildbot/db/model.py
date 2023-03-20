@@ -858,7 +858,7 @@ class Model(base.DBConnectorComponent):
     sa.Index('buildset_properties_buildsetid',
              buildset_properties.c.buildsetid)
     sa.Index('workers_name', workers.c.name, unique=True)
-    sa.Index('pgusers', pgusers.c.pguserid)
+    sa.Index('pgusers_userid', pgusers.c.pguserid)
     sa.Index('changes_branch', changes.c.branch)
     sa.Index('changes_revision', changes.c.revision)
     sa.Index('changes_author', changes.c.author)
