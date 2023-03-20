@@ -6,6 +6,7 @@ class Endpoints {
     constructor() {
         // Rootlinks
         return [
+            'pgusers',
             'builders',
             'builds',
             'buildrequests',
