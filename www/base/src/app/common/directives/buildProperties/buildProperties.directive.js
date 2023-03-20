@@ -13,14 +13,22 @@ class BuildProperties {
 }
 
 class _buildProperties {
-    constructor($scope, $interval, resultsService) {
+    constructor($scope, $interval, resultsService, dataService) {
         _.mixin($scope, resultsService);
         const stop = $interval(() => {
             if(!$scope.build)
                 return;
+            // if(!$scope.properties)
+            //     return;
             
             $interval.cancel(stop);
 
+            const data = dataService.open().closeOnDestroy($scope);
+            let pguserid = $scope.properties.owners ? $scope.properties.owners[0][0].split('@')[0] : "";
+            data.getPgusers(pguserid).onNew = function(pguser) {
+                $scope.fullUserName = pguser.full_name;
+            }
+            
             $scope.isBuildRequest = typeof $scope.build.submitted_at !== 'undefined';
             
             if(!$scope.isBuildRequest) {
@@ -61,4 +69,4 @@ class _buildProperties {
 
 angular.module('common')
 .directive('buildProperties', [BuildProperties])
-.controller('_buildPropertiesController', ['$scope', '$interval', 'resultsService', _buildProperties]);
+.controller('_buildPropertiesController', ['$scope', '$interval', 'resultsService', 'dataService', _buildProperties]);
