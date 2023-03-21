@@ -13,6 +13,9 @@ from twisted.logger import Logger
 import json
 import re
 
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
 import traceback
 
 from buildbot.process.results import Results
@@ -39,19 +42,63 @@ STATUS_COLORS = {
 }
 DEFAULT_HOST = "https://hooks.slack.com"  # deprecated
 
+
 def safe_serialize(obj):
     default = lambda o: f"<<non-serializable>>"
     return json.dumps(obj, default=default)
 
+
 class SlackStatusPush(http.HttpStatusPush):
     name = "SlackStatusPush"
     neededDetails = dict(wantProperties=True)
+    send_DMs = True
+
+    def __init__(self, slack_client_token=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.send_DMs:
+            self.slack_client = WebClient(token=slack_client_token)
+            try:
+                result = self.slack_client.users_list()
+                self.slack_users = result["members"]
+            except SlackApiError as e:
+                logger.error("Error creating conversation: {}".format(e))
+
+    def send_dm(self, full_name, post_data):
+        pg_name_parts = full_name.split()
+        if len(pg_name_parts) < 2:
+            return
+
+        fname_pguser = pg_name_parts[0]
+        lname_pguser = pg_name_parts[1]
+
+        channel_id = None
+        for user in self.slack_users:
+            real_name = user.get('real_name')
+            if real_name is None:
+                continue
+            slack_name_parts = real_name.split()
+            if len(slack_name_parts) < 2:
+                continue
+
+            fname_slack = slack_name_parts[0].replace('ё', 'е')
+            lname_slack = slack_name_parts[1]
+            if fname_pguser == fname_slack and lname_pguser == lname_slack or fname_pguser == lname_slack and lname_pguser == fname_slack:
+                channel_id = user['id']
+                break
+
+        if channel_id is not None:
+            try:
+                result = self.slack_client.chat_postMessage(channel=channel_id, attachments=post_data['attachments'], icon_emoji=post_data['icon_emoji'])
+                logger.info(result)
+            except SlackApiError as e:
+                logger.error(f"Error posting message: {e}")
+
 
     def sendOnStatuses(self):
         return STATUS_EMOJIS.keys()
 
     def checkConfig(
-        self, endpoint, channel=None, host_url=None, username=None, **kwargs
+            self, endpoint, channel=None, host_url=None, username=None, **kwargs
     ):
         if not isinstance(endpoint, str):
             logger.warning(
@@ -85,14 +132,14 @@ class SlackStatusPush(http.HttpStatusPush):
 
     @defer.inlineCallbacks
     def reconfigService(
-        self,
-        endpoint,
-        channel=None,
-        host_url=None,  # deprecated
-        username=None,
-        attachments=True,
-        verbose=False,
-        **kwargs
+            self,
+            endpoint,
+            channel=None,
+            host_url=None,  # deprecated
+            username=None,
+            attachments=True,
+            verbose=False,
+            **kwargs
     ):
 
         yield super().reconfigService(serverUrl=endpoint, **kwargs)
@@ -119,7 +166,7 @@ class SlackStatusPush(http.HttpStatusPush):
             # traceback.print_stack()
             # see master/buildbot/process/results.py and master/docs/manual/configuration/reporters/reporter_base.rst
             logger.error("report " + safe_serialize(report))
-            
+
             builds = report["builds"]
             for build in builds:
                 result = build["results"]
@@ -129,22 +176,27 @@ class SlackStatusPush(http.HttpStatusPush):
                     continue
                 if not Results[result] in self.sendOnStatuses():
                     continue
-                
+
                 state_string = build["state_string"]
                 if state_string == "starting":
                     continue
-                
+
                 logger.error("slack reporter result num " + str(result) + " Result: " + Results[result])
-                
+
                 pprint.pprint(build)
                 msg = ""
-                
+
                 branch = build["properties"].get("branch")
                 if branch is not None:
                     msg += f"{state_string} - *{branch[0]}*"
                 else:
                     msg += f"{state_string}"
                 msg += "\n\n"
+
+                owner = None
+                owner_array = build["properties"].get('owner')
+                if owner_array is not None:
+                    owner = owner_array[0].split("@")[0]
 
                 pr_url = build["properties"].get("pullrequesturl")
                 if pr_url is not None:
@@ -170,14 +222,14 @@ class SlackStatusPush(http.HttpStatusPush):
                         "value": build_number[0],
                         "short": "True"
                     })
-                    
+
                 android_hashes = build["properties"].get("android_hashes")
                 if android_hashes is not None:
                     fields.append({
                         "title": "Hashes",
                         "value": android_hashes[0]
                     })
-                    
+
                 platform = "unknown"
                 builder_name_list = build["properties"].get("buildername")
                 if builder_name_list is not None:
@@ -191,11 +243,12 @@ class SlackStatusPush(http.HttpStatusPush):
                     "value": platform,
                     "short": "True"
                 })
-                        
+
                 try:
                     postData = {
-                        "text": "", 
-                        'icon_emoji': ':green_apple' if result == 0 else (':purple_heart' if result == 4 else ':red_circle'), 
+                        "text": "",
+                        'icon_emoji': ':green_apple' if result == 0 else (
+                            ':purple_heart' if result == 4 else ':red_circle'),
                         'attachments': [{
                             "fields": fields,
                             "mrkdwn_in": ["text", "title", "fallback"],
@@ -213,12 +266,19 @@ class SlackStatusPush(http.HttpStatusPush):
                             code=response.code,
                             content=content,
                         )
+
+                    if self.send_DMs and owner:
+                        pguser_dict = yield self.master.data.get(('pgusers', owner))
+                        if pguser_dict:
+                            self.send_dm(pguser_dict['full_name'], postData)
                 except Exception as e:
                     logger.error("[SlackStatusPush] Failed to send status: {error}", error=e)
+
 
 class SlackFailStatusPush(SlackStatusPush):
     name = "SlackFailStatusPush"
     neededDetails = dict(wantProperties=True)
-    
+    send_DMs = False
+
     def sendOnStatuses(self):
         return ["failure", "skipped", "exception", "cancelled", "retry"]
