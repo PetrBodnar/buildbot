@@ -267,7 +267,7 @@ class SlackStatusPush(http.HttpStatusPush):
                             content=content,
                         )
 
-                    if self.send_DMs and owner:
+                    if self.send_DMs and owner is not None:
                         pguser_dict = yield self.master.data.get(('pgusers', owner))
                         if pguser_dict:
                             self.send_dm(pguser_dict['full_name'], postData)
