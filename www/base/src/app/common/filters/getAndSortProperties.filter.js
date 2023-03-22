@@ -18,27 +18,43 @@ class GetAndSortProperties {
                 return object;
             }
             
-            let result = {};
-
-            for (var key in preferredSortingOrder) {
+            if (object._filteredAndSortedFields == null) { object._filteredAndSortedFields = {}; }
+            for (let key in preferredSortingOrder) {
                 // check if the property/key is defined in the object itself, not in parent
                 if (preferredSortingOrder.hasOwnProperty(key)) {
                     let value = object[key];
                     if (value) {
-                        if(key === 'android_hashes') {
-                            result["Hash 1"] = [value[0].split(' ')[0], ''];
-                            result["Hash 2"] = [value[0].split(' ')[1], ''];
+                        if(key === 'android_hashes' && value[0] !== '') {
+                            try {
+                                let currentHash1 = object._filteredAndSortedFields["Hash 1"];
+                                let newHash1 = value[0].split(' ')[0];
+                                if(!currentHash1 || currentHash1[0] !== newHash1)
+                                    object._filteredAndSortedFields["Hash 1"] = [newHash1, ''];
+
+                                let currentHash2 = object._filteredAndSortedFields["Hash 2"];
+                                let newHash2 = value[0].split(' ')[1];
+                                if(!currentHash2 || currentHash2[0] !== newHash2)
+                                    object._filteredAndSortedFields["Hash 2"] = [newHash2, ''];
+                            }
+                            catch (e) {
+                            }
                         }
                         else {
-                            if(key === "owner")
-                                value[0] = value[0].split('@')[0];
-                            result[preferredSortingOrder[key]] = value;
+                            if(key === "owner") {
+                                let currentOwner = object._filteredAndSortedFields[preferredSortingOrder['owner']];
+                                let newOwner = value[0].split('@')[0];
+                                if(!currentOwner || currentOwner[0] !== newOwner)
+                                    object._filteredAndSortedFields[preferredSortingOrder['owner']] = [newOwner, value[1]];
+                            }
+                            else {
+                                object._filteredAndSortedFields[preferredSortingOrder[key]] = value;
+                            }
                         }
                     }
                 }
             }
             
-            return result;
+            return  object._filteredAndSortedFields;
         };
     }
 }
