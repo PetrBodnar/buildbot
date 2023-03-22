@@ -268,7 +268,7 @@ class SlackStatusPush(http.HttpStatusPush):
                             content=content,
                         )
 
-                    send_DMs_from_properties = build["properties"].get("send_dm_to_slack", False)
+                    send_DMs_from_properties = build["properties"].get("send_dm_to_slack", (True, ''))[0]
                     if self.send_DMs and send_DMs_from_properties and owner is not None:
                         pguser_dict = yield self.master.data.get(('pgusers', owner))
                         if pguser_dict:
