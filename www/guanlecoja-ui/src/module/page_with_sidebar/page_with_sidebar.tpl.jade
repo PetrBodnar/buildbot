@@ -3,13 +3,14 @@
         ul
             li(style="text-indent:5px")
                 // https://www.sitepoint.com/why-hosting-your-svgs-is-hard-and-how-to-beat-it/
-                img(src="https://gistcdn.githack.com/PetrBodnar/0e4adf4b2814db91a12e27783dcae252/raw/235dc583a3120caa15de8ea78a71ba55908ba677/logo_lightmap.svg" alt="background" border="0" style="width:85%;margin: 10px;image-rendering: pixelated;")
+                a(ui-sref="home")
+                    img(src="https://gistcdn.githack.com/PetrBodnar/0e4adf4b2814db91a12e27783dcae252/raw/235dc583a3120caa15de8ea78a71ba55908ba677/logo_lightmap.svg" alt="background" border="0" style="width:85%;margin: 10px;image-rendering: pixelated;")
             //li.sidebar-title(style="font-size:20px")
             //    a(href='javascript:')
             //        | {{page.appTitle}}
             //        span.menu-icon.fa.fa-bars(ng-hide="page.sidebarActive", ng-click='page.sidebarActive=!page.sidebarActive')
-            li.sidebar-title
-                span NAVIGATION
+            //li.sidebar-title
+            //    span NAVIGATION
             div(ng-repeat="group in page.groups")
                 div(ng-if="group.items.length > 0")
                     li.sidebar-list
