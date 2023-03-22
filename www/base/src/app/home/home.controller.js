@@ -14,7 +14,21 @@ class Home {
         $scope.hasBuilds = b => (b.recentBuilds != null ? b.recentBuilds.length : undefined) > 0 || 
             (b.buildsRunning != null ? b.buildsRunning.length : undefined) > 0;
 
+        let colClasses = [12, 12, 6, 4, 3, 2, 2, 2, 2];
+        $scope.columnClass = 'col-md-12';
+        var numOfBuilders = 0;
+        let increaseNumOfBuilds = function () {
+            numOfBuilders++;
+            for (let i = colClasses.length - 1; i >= 0; i--) {
+                if(numOfBuilders === i) {
+                    $scope.columnClass = 'col-md-' + colClasses[i];
+                    break;
+                }
+            }
+        };
+            
         $scope.builders.onNew = function(builder) {
+            increaseNumOfBuilds();
             // const byNumber = (a, b) => a.number - b.number;
             
             let onNewBuild = function(build) {
