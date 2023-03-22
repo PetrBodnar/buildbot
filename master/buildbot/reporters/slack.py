@@ -225,10 +225,11 @@ class SlackStatusPush(http.HttpStatusPush):
 
                 android_hashes = build["properties"].get("android_hashes")
                 if android_hashes is not None:
-                    fields.append({
-                        "title": "Hashes",
-                        "value": android_hashes[0]
-                    })
+                    if len(android_hashes[0]) > 0:
+                        fields.append({
+                            "title": "Hashes",
+                            "value": android_hashes[0]
+                        })
 
                 platform = "unknown"
                 builder_name_list = build["properties"].get("buildername")
@@ -267,7 +268,8 @@ class SlackStatusPush(http.HttpStatusPush):
                             content=content,
                         )
 
-                    if self.send_DMs and owner is not None:
+                    send_DMs_from_properties = build["properties"].get("send_dm_to_slack", False)
+                    if self.send_DMs and send_DMs_from_properties and owner is not None:
                         pguser_dict = yield self.master.data.get(('pgusers', owner))
                         if pguser_dict:
                             self.send_dm(pguser_dict['full_name'], postData)
