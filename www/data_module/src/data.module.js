@@ -10,6 +10,7 @@ require('./classes/changesource.service.js');
 require('./classes/forcescheduler.service.js');
 require('./classes/logs.service.js');
 require('./classes/master.service.js');
+require('./classes/pguser.service.js');
 require('./classes/properties.service.js');
 require('./classes/scheduler.service.js');
 require('./classes/sourcestamp.service.js');
