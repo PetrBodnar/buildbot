@@ -295,7 +295,7 @@ class SlackStatusPush(http.HttpStatusPush):
                     if pguser_dict is not None:
                         owner_full_name = pguser_dict['full_name']
 
-                user_who_stops = build['user_who_stops']
+                user_who_stops = build.get('user_who_stops', None)
                 if user_who_stops is not None:
                     user_who_stops_pguser_dict = yield self.master.data.get(('pgusers', user_who_stops))
                     if user_who_stops_pguser_dict is not None:
