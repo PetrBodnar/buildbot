@@ -63,7 +63,48 @@ class SlackStatusPush(http.HttpStatusPush):
             except SlackApiError as e:
                 logger.error("Error creating conversation: {}".format(e))
 
-    def send_dm(self, full_name, post_data):
+    def color_for_result_code(self, result_code):
+        return "good" if result_code == 0 else "danger"
+
+    def _is_bundles_build(self, properties):
+        return properties['buildType'] == 'Bundles'
+
+    def get_props_string(self, properties):
+        result = ''
+
+        bundles = self._is_bundles_build(properties)
+        if not bundles:
+            if properties['buildType'] == "Development":
+                result += "DEV: "
+            if properties['buildType'] == "Release":
+                result += "RELEASE: "
+            android_store = properties.get('androidStore')
+            if android_store is not None:
+                index = result.index(':')
+                if index >= 0:
+                    result = result[:index] + ' ' + android_store + result[index:]
+            use_obb = properties.get('useObb')
+            if use_obb is not None and use_obb:
+                result += 'OBB, '
+            app_store = properties.get('appStore')
+            if app_store is not None and app_store:
+                result += 'AppStore, '
+            test_flight = properties.get('testFlight')
+            if test_flight is not None and test_flight:
+                result += 'TestFlight, '
+            profiler = properties.get('profiler')
+            if profiler is not None and profiler:
+                result += 'Profiler, '
+        else:
+            result += "BUNDLES"
+
+        result = result.strip()
+        if result.endswith(':') or result.endswith(','):
+            result = result[:len(result) - 1]
+
+        return result
+
+    def send_dm(self, full_name, text, attachments):
         pg_name_parts = full_name.split()
         if len(pg_name_parts) < 2:
             return
@@ -88,11 +129,10 @@ class SlackStatusPush(http.HttpStatusPush):
 
         if channel_id is not None:
             try:
-                result = self.slack_client.chat_postMessage(channel=channel_id, attachments=post_data['attachments'], icon_emoji=post_data['icon_emoji'])
+                result = self.slack_client.chat_postMessage(channel=channel_id, text=text, attachments=attachments)
                 logger.info(result)
             except SlackApiError as e:
                 logger.error(f"Error posting message: {e}")
-
 
     def sendOnStatuses(self):
         return STATUS_EMOJIS.keys()
@@ -184,79 +224,101 @@ class SlackStatusPush(http.HttpStatusPush):
                 logger.error("slack reporter result num " + str(result) + " Result: " + Results[result])
 
                 pprint.pprint(build)
-                msg = ""
 
-                branch = build["properties"].get("branch")
-                if branch is not None:
-                    msg += f"{state_string} - *{branch[0]}*"
-                else:
-                    msg += f"{state_string}"
-                msg += "\n\n"
+                result_code = build['results']
+                text = self.master.config.title + ': Build ' + Results[result_code].title() + ''
 
-                owner = None
-                owner_array = build["properties"].get('owner')
-                if owner_array is not None:
-                    owner = owner_array[0].split("@")[0]
-
-                pr_url = build["properties"].get("pullrequesturl")
-                if pr_url is not None:
-                    msg += pr_url[0]
-                    msg += "\n\n"
-
-                url = build["url"]
-                msg += url
-                msg += "\n\n"
-
-                users = build.get("users")
-                if users is not None:
-                    msg += str(users)
-                    msg += "\n\n"
-
-                msg += "\n\n"
+                properties = {}
+                for prop_name in build['properties'].keys():
+                    prop_arr = build['properties'][prop_name]
+                    prop_value = prop_arr[0]
+                    properties[prop_name] = prop_value
 
                 fields = []
-                build_number = build["properties"].get("build_number")
+                branch = properties.get('branch')
+                if branch is None:
+                    branch = properties.get('revision')
+                fields.append({
+                    "title": branch,
+                    # "value": platform,
+                    "short": "True"
+                })
+
+                properties_string = self.get_props_string(properties)
+                fields.append({
+                    "title": properties_string,
+                    # "value": platform,
+                    # "short": "True"
+                })
+
+                url = build["url"]
+                fields.append({
+                    "title": 'URL',
+                    "value": url,
+                    # "short": "True"
+                })
+
+                build_number = properties.get("build_number")
                 if build_number is not None:
                     fields.append({
-                        "title": "TEST FLIGHT Build number",
-                        "value": build_number[0],
+                        "title": "TEST FLIGHT Build number ",
+                        "value": build_number,
                         "short": "True"
                     })
 
-                android_hashes = build["properties"].get("android_hashes")
-                if android_hashes is not None:
-                    if len(android_hashes[0]) > 0:
-                        fields.append({
-                            "title": "Hashes",
-                            "value": android_hashes[0]
-                        })
+                # android_hashes = build["properties"].get("android_hashes")
+                # if android_hashes is not None:
+                #     if len(android_hashes[0]) > 0:
+                #         fields.append({
+                #             "title": "Hashes",
+                #             "value": android_hashes[0]
+                #         })
 
                 platform = "unknown"
-                builder_name_list = build["properties"].get("buildername")
-                if builder_name_list is not None:
-                    builder_name = builder_name_list[0]
+                builder_name = properties.get("buildername")
+                if builder_name is not None:
                     if re.search('ios', builder_name, re.IGNORECASE):
-                        platform = 'ios'
+                        platform = 'iOS'
                     elif re.search('android', builder_name, re.IGNORECASE):
-                        platform = 'android'
+                        platform = 'Android'
                 fields.append({
                     "title": "Platform",
                     "value": platform,
                     "short": "True"
                 })
 
+                owner_full_name = ''
+                owner = properties.get('owner')
+                if owner is not None:
+                    owner = owner.split("@")[0]
+                    pguser_dict = yield self.master.data.get(('pgusers', owner))
+                    if pguser_dict is not None:
+                        owner_full_name = pguser_dict['full_name']
+
+                user_who_stops = build['user_who_stops']
+                if user_who_stops is not None:
+                    user_who_stops_pguser_dict = yield self.master.data.get(('pgusers', user_who_stops))
+                    if user_who_stops_pguser_dict is not None:
+                        fields.append({
+                            "title": "Остановил",
+                            "value": user_who_stops_pguser_dict['full_name'],
+                            "short": "True"
+                        })
+
+                attachments = [{
+                    "fields": fields,
+                    "mrkdwn_in": ["text", "title", "fallback"],
+                    "text": '',
+                    "fallback": '',
+                    "color": self.color_for_result_code(result_code),
+                }]
+
                 try:
                     postData = {
-                        "text": "",
-                        'icon_emoji': ':green_apple' if result == 0 else (
-                            ':purple_heart' if result == 4 else ':red_circle'),
-                        'attachments': [{
-                            "fields": fields,
-                            "mrkdwn_in": ["text", "title", "fallback"],
-                            "text": msg,
-                            "fallback": msg,
-                            "color": "good" if result == 0 else "danger",
-                        }]
+                        "text": text,
+                        # 'icon_emoji': ':green_apple' if result == 0 else (
+                        #     ':purple_heart' if result == 4 else ':red_circle'),
+                        'attachments': attachments
                     }
                     # https://api.slack.com/reference/messaging/attachments
                     response = yield self._http.post("", json=postData)
@@ -268,11 +330,9 @@ class SlackStatusPush(http.HttpStatusPush):
                             content=content,
                         )
 
-                    send_DMs_from_properties = build["properties"].get("send_dm_to_slack", (True, ''))[0]
-                    if self.send_DMs and send_DMs_from_properties and owner is not None:
-                        pguser_dict = yield self.master.data.get(('pgusers', owner))
-                        if pguser_dict:
-                            self.send_dm(pguser_dict['full_name'], postData)
+                    send_DMs_from_properties = properties.get("send_dm_to_slack", True)
+                    if self.send_DMs and send_DMs_from_properties and owner_full_name is not None:
+                        self.send_dm(owner_full_name, text, attachments)
                 except Exception as e:
                     logger.error("[SlackStatusPush] Failed to send status: {error}", error=e)
 
