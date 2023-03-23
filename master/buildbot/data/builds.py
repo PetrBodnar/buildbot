@@ -116,9 +116,16 @@ class BuildEndpoint(Db2DataMixin, base.BuildNestingMixin, base.Endpoint):
             num = kwargs['number']
             dbdict = yield self.master.db.builds.getBuildByNumber(bldr, num)
             buildid = dbdict['id']
+        data = dict(reason=kwargs.get('reason', args.get('reason', 'no reason')))
+        try:
+            control_user = args.get('control_user', None)
+            if control_user is not None:
+                data['control_user'] = control_user
+        except:
+            pass
         self.master.mq.produce(("control", "builds",
                                 str(buildid), 'stop'),
-                               dict(reason=kwargs.get('reason', args.get('reason', 'no reason'))))
+                               data)
 
     @defer.inlineCallbacks
     def actionRebuild(self, args, kwargs):
@@ -216,9 +223,11 @@ class Build(base.ResourceType):
     entityType = EntityType(name, 'Build')
 
     @defer.inlineCallbacks
-    def generateEvent(self, _id, event):
+    def generateEvent(self, _id, event, user_who_stops=None):
         # get the build and munge the result for the notification
         build = yield self.master.data.get(('builds', str(_id)))
+        if user_who_stops is not None:
+            build['user_who_stops'] = user_who_stops
         self.produceEvent(build, event)
 
     @base.updateMethod
@@ -246,8 +255,8 @@ class Build(base.ResourceType):
 
     @base.updateMethod
     @defer.inlineCallbacks
-    def finishBuild(self, buildid, results):
+    def finishBuild(self, buildid, results, user_who_stops=None):
         res = yield self.master.db.builds.finishBuild(
             buildid=buildid, results=results)
-        yield self.generateEvent(buildid, "finished")
+        yield self.generateEvent(buildid, "finished", user_who_stops)
         return res

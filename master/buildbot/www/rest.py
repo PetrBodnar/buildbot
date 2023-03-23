@@ -229,6 +229,10 @@ class V2RootResource(resource.Resource):
                     if owner:
                         break
             params['owner'] = owner
+            try:
+                params['control_user'] = request.session.user_info['username']
+            except:
+                pass
 
             result = yield ep.control(method, params, kwargs)
             jsonRpcReply['result'] = result

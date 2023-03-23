@@ -98,6 +98,7 @@ class Build(properties.PropertiesMixin):
         # overall results, may downgrade after each step
         self.results = SUCCESS
         self.properties = properties.Properties()
+        self.user_who_stops = None
         self.stopped_reason = None
 
         # tracks execution during the build finish phase
@@ -630,7 +631,7 @@ class Build(properties.PropertiesMixin):
         return self.stopBuild(**params)
 
     @defer.inlineCallbacks
-    def stopBuild(self, reason="<no reason given>", results=CANCELLED):
+    def stopBuild(self, reason="<no reason given>", results=CANCELLED, control_user=None):
         # the idea here is to let the user cancel a build because, e.g.,
         # they realized they committed a bug and they don't want to waste
         # the time building something that they know will fail. Another
@@ -641,6 +642,7 @@ class Build(properties.PropertiesMixin):
         log.msg(f" {self}: stopping build: {reason} {results}")
         if self.finished:
             return
+        self.user_who_stops = control_user
         self.stopped_reason = reason
         self.stopped = True
         if self.currentStep and self.currentStep.results is None:
@@ -702,7 +704,7 @@ class Build(properties.PropertiesMixin):
 
             yield self.master.data.updates.setBuildStateString(self.buildid,
                                                                bytes2unicode(" ".join(text)))
-            yield self.master.data.updates.finishBuild(self.buildid, self.results)
+            yield self.master.data.updates.finishBuild(self.buildid, self.results, self.user_who_stops)
 
             if self.results == EXCEPTION:
                 # When a build has an exception, put the worker in quarantine for a few seconds
