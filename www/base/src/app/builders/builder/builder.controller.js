@@ -154,13 +154,13 @@ class BuilderController {
             };
             
             $scope.builds.onNew = function(build) {
-                let pguserid = build.properties.owners ? build.properties.owners[0][0].split('@')[0] : "";
-                data.getPgusers(pguserid).onNew = function(pguser) {
-                    build.fullUserName = pguser.full_name;
-                }
                 build.getProperties().onNew = function(properties)
                 {
                     build.buildProperties = properties;
+                    let pguserid = build.buildProperties.owners ? build.buildProperties.owners[0][0].split('@')[0] : "";
+                    data.getPgusers(pguserid).onNew = function(pguser) {
+                        build.fullUserName = pguser.full_name;
+                    }
                 };
 
                 data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
