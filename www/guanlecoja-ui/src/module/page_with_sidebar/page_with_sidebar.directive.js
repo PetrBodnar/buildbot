@@ -25,12 +25,12 @@ class _glPageWithSidebar {
         this.$scope = $scope;
         this.$timeout = $timeout;
         this.$window = $window;
-        this.sidebarPinned = true; // this.$window.innerWidth > 800;
+        this.sidebarPinned = this.$window.innerWidth > 500;
         // If user has previously pinned or unpinned the sidebar, use the saved value from localStorage
-        const sidebarWasPinned = this.$window.localStorage.sidebarPinned;
-        if ( (sidebarWasPinned === "true") || (sidebarWasPinned === "false") ) { // note -- localstorage only stores strings,  converts bools to string.
-            this.sidebarPinned = sidebarWasPinned !== "false";
-        }
+        // const sidebarWasPinned = this.$window.localStorage.sidebarPinned;
+        // if ( (sidebarWasPinned === "true") || (sidebarWasPinned === "false") ) { // note -- localstorage only stores strings,  converts bools to string.
+        //     this.sidebarPinned = sidebarWasPinned !== "false";
+        // }
 
         this.groups = glMenuService.getGroups();
         this.footer = glMenuService.getFooter();
