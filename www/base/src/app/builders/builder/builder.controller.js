@@ -157,7 +157,7 @@ class BuilderController {
                 build.getProperties().onNew = function(properties)
                 {
                     build.buildProperties = properties;
-                    let pguserid = build.buildProperties.owners ? build.buildProperties.owners[0][0].split('@')[0] : "";
+                    let pguserid = (build.buildProperties.owners ? build.buildProperties.owners[0] : build.buildProperties.owner)[0].split('@')[0];
                     data.getPgusers(pguserid).onNew = function(pguser) {
                         build.fullUserName = pguser.full_name;
                     }
