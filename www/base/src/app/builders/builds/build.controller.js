@@ -109,7 +109,7 @@ class BuildController {
             // get the build plus the previous and next
             // note that this registers to the updates for all the builds for that builder
             // need to see how that scales
-            builder.getBuilds({number__lt: buildnumber + 2, limit: 3, order: '-number'}).onChange = function(builds) {
+            builder.getBuilds({number__lt: buildnumber + 2, limit: 3, order: '-number', property: ['*']}).onChange = function(builds) {
                 $scope.prevbuild = null;
                 $scope.nextbuild = null;
                 let build = null;
@@ -119,6 +119,10 @@ class BuildController {
                     }
                     if (b.number === buildnumber) {
                         $scope.build = (build = b);
+                        // build.buildProperties = build.properties;
+                        // build.branch = build.buildProperties.branch ? build.buildProperties.branch[0] : build.buildProperties.got_revision[0];
+                        // build.fullUserName = build.buildProperties.full_name;
+                        $scope.properties = build.properties;
                     }
                     if (b.number === (buildnumber + 1)) {
                         $scope.nextbuild = b;
@@ -156,7 +160,7 @@ class BuildController {
 
                 $scope.responsibles = {};
                 build.getProperties().onNew = function(properties) {
-                    $scope.properties = properties;
+                    
                     var owner = properties.owner[0];
                     if (properties.scheduler[0] === 'force' && owner.match(/^.+\<.+\@.+\..+\>.*$/)) {
                         var name = owner.split(new RegExp('<|>'))[0];

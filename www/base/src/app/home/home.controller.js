@@ -32,23 +32,26 @@ class Home {
             // const byNumber = (a, b) => a.number - b.number;
             
             let onNewBuild = function(build) {
-                build.getProperties().onNew = function(properties)
-                {
-                    build.buildProperties = properties;
-                };
-                data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
-                    data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
-                        build.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
-                        let pguserid = build.properties.owners[0][0].split('@')[0];
-                        data.getPgusers(pguserid).onNew = function(pguser) {
-                            build.fullUserName = pguser.full_name;
-                        }
-                    };
-                };
+                build.buildProperties = build.properties;
+                build.branch = build.buildProperties.branch ? build.buildProperties.branch[0] : build.buildProperties.got_revision[0];
+                build.fullUserName = build.buildProperties.full_name;
+                
+                // let pguserid = build.properties.owner[0].split('@')[0];
+                // data.getPgusers(pguserid).onNew = function(pguser) {
+                //     build.fullUserName = pguser.full_name;
+                // }
+                
+                // data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
+                //     data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
+                //         build.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
+                //         let pguserid = build.properties.owners[0][0].split('@')[0];
+                //        
+                //     };
+                // };
             };
 
-            builder.buildsRunning = data.getBuilds({order: '-started_at', complete: false, property: ["owners"], builderid__eq:[builder.builderid]});
-            builder.recentBuilds = data.getBuilds({order: '-buildid', complete: true, limit:20, property: ["owners"], builderid__eq:[builder.builderid]});
+            builder.buildsRunning = data.getBuilds({order: '-started_at', complete: false, property: ["*"], builderid__eq:[builder.builderid]});
+            builder.recentBuilds = data.getBuilds({order: '-buildid', complete: true, limit:20, property: ["*"], builderid__eq:[builder.builderid]});
 
             builder.buildsRunning.onNew = onNewBuild;
             builder.recentBuilds.onNew = onNewBuild;

@@ -188,6 +188,12 @@ class BuildsEndpoint(Db2DataMixin, base.BuildNestingMixin, base.Endpoint):
                     props = yield self.master.db.builds.getBuildProperties(data["buildid"])
                     filtered_properties = self._generate_filtered_properties(props, filters)
                     if filtered_properties:
+                        try:
+                            owner = filtered_properties['owner'][0].split('@')[0]
+                            pguser = yield self.master.db.pgusers.getPgUser(owner)
+                            filtered_properties['full_name'] = pguser['full_name']
+                        except Exception as e:
+                            pass
                         data["properties"] = filtered_properties
 
             buildscol.append(data)

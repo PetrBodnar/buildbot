@@ -133,7 +133,7 @@ class BuilderController {
                 $scope.numbuilds = +$stateParams.numbuilds;
             }
             $scope.builds = builder.getBuilds({
-                property: ["owners", "workername", "got_revision"],
+                property: ["*"],
                 limit: $scope.numbuilds,
                 order: '-number'
             });
@@ -154,20 +154,24 @@ class BuilderController {
             };
             
             $scope.builds.onNew = function(build) {
-                build.getProperties().onNew = function(properties)
-                {
-                    build.buildProperties = properties;
-                    let pguserid = (build.buildProperties.owners ? build.buildProperties.owners[0] : build.buildProperties.owner)[0].split('@')[0];
-                    data.getPgusers(pguserid).onNew = function(pguser) {
-                        build.fullUserName = pguser.full_name;
-                    }
-                };
-
-                data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
-                    data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
-                        build.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
-                    };
-                };
+                build.buildProperties = build.properties;
+                build.branch = build.buildProperties.branch ? build.buildProperties.branch[0] : build.buildProperties.got_revision[0];
+                build.fullUserName = build.buildProperties.full_name;
+                
+                // build.getProperties().onNew = function(properties)
+                // {
+                //     build.buildProperties = properties;
+                //     let pguserid = (build.buildProperties.owners ? build.buildProperties.owners[0] : build.buildProperties.owner)[0].split('@')[0];
+                //     data.getPgusers(pguserid).onNew = function(pguser) {
+                //         build.fullUserName = pguser.full_name;
+                //     }
+                // };
+                //
+                // data.getBuildrequests(build.buildrequestid).onNew = function(buildrequest) {
+                //     data.getBuildsets(buildrequest.buildsetid).onNew = function(buildset) {
+                //         build.branch = buildset.sourcestamps[0].branch ? buildset.sourcestamps[0].branch : buildset.sourcestamps[0].revision;
+                //     };
+                // };
             };
 
 
