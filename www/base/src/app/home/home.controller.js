@@ -5,7 +5,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 class Home {
-    constructor($scope, dataService, config, $location, $state) {
+    constructor($scope, dataService, config, $location, $state, $interval) {
         $scope.baseurl = $location.absUrl().split("#")[0];
         $scope.config = config;
 
@@ -26,15 +26,35 @@ class Home {
                 }
             }
         };
-            
+                
         $scope.builders.onNew = function(builder) {
             increaseNumOfBuilds();
             // const byNumber = (a, b) => a.number - b.number;
             
             let onNewBuild = function(build) {
-                build.buildProperties = build.properties;
-                build.branch = build.buildProperties.branch ? build.buildProperties.branch[0] : build.buildProperties.got_revision[0];
-                build.fullUserName = build.buildProperties.full_name;
+                if((build.properties.branch || build.properties.got_revision) && build.properties.full_name) {
+                    build.buildProperties = build.properties;
+                    build.branch = build.buildProperties.branch ? build.buildProperties.branch[0] : build.buildProperties.got_revision[0];
+                    build.fullUserName = build.buildProperties.full_name;
+                }
+                else {
+                    // Фикс случая когда начинается новый билд - проперти приходят пустые, и ветка и имя не заполнются
+                    // Если сразу сделать getProperties то свойства тоже не приходили (приходил только owner
+                    // Поэтому запрашиваем через таймаут
+                    const stop = $interval(() => {
+                        $interval.cancel(stop);
+
+                        build.getProperties().onNew = properties => {
+                            build.buildProperties = properties;
+                            build.branch = build.buildProperties.branch ? build.buildProperties.branch[0] : build.buildProperties.got_revision[0];
+                            let pguserid = build.buildProperties.owner[0].split('@')[0];
+                            data.getPgusers(pguserid).onNew = function(pguser) {
+                                build.fullUserName = pguser.full_name;
+                            }
+                        }
+                    }, 250);
+                }
+                
                 
                 // let pguserid = build.properties.owner[0].split('@')[0];
                 // data.getPgusers(pguserid).onNew = function(pguser) {
@@ -108,4 +128,4 @@ class Home {
 
 
 angular.module('app')
-.controller('homeController', ['$scope', 'dataService', 'config', '$location', '$state', Home]);
+.controller('homeController', ['$scope', 'dataService', 'config', '$location', '$state', '$interval', Home]);
