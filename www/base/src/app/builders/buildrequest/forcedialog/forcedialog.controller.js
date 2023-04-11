@@ -41,37 +41,54 @@ class forceDialog {
 
             const stop = $interval(() => {
                 let selects = document.getElementsByTagName('select');
-                if (selects.length == 0)
+
+                var select = null;
+                for (let i = 0; i < selects.length; i++) {
+                    if(Array.apply(null, selects[i].options).some(element => element.label === "Bundles")) {
+                        select = selects[i];
+                        break;
+                    }
+                }
+                
+                if(select === null)
                     return;
 
                 $interval.cancel(stop);
 
-                for (let i = 0; i < selects.length; i++) {
-                    selects[i].addEventListener('change', function() {
-                        if(!Array.apply(null, this.options).some(element => element.label === "Bundles"))
-                            return;
+                let changeControlsVisibility = function (s) {
+                    let bundlesBuildDisplay = s.value.endsWith("Bundles") ? "block" : "none";
+                    let normalBuildDisplay = s.value.endsWith("Bundles") ? "none" : "block";
+                    let props = ["Obfuscate", "Profiler", "App Store", "Test Flight", "Use Obb", "Split Arch", "Android Store", "Version Code", "Force Rebuild Bundles"];
+                    for (let j = 0; j < props.length; j++) {
+                        let prop = props[j];
+                        let xpath = `//label[text()[contains(.,'${prop}')]]`;
+                        let node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                        if(!node)
+                            continue;
 
-                        let display = this.value.endsWith("Bundles") ? "none" : "block";
-                        let props = ["Obfuscate", "Profiler", "App Store", "Test Flight", "Use Obb", "Split Arch", "Android Store", "Version Code"];
-                        for (let j = 0; j < props.length; j++) {
-                            let prop = props[j];
-                            let xpath = `//label[text()[contains(.,'${prop}')]]`;
-                            let node = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                            if(!node)
-                                continue;
-                            
-                            if(prop === "Android Store" || prop === "Version Code")
-                            {
-                                node.parentElement.style.display = display;
-                            }
-                            else
-                            {
-                                node.style.display = display;
-                            }
+                        if(prop === "Android Store" || prop === "Version Code")
+                        {
+                            node.parentElement.style.display = normalBuildDisplay;
                         }
+                        else if(prop === "Force Rebuild Bundles")
+                        {
+                            node.style.display = bundlesBuildDisplay;
+                        }
+                        else
+                        {
+                            node.style.display = normalBuildDisplay;
+                        }
+                    }
+                };
+                let listener = function() {
+                    changeControlsVisibility(this);
+                };
+                select.addEventListener('change', listener);
 
-                    });
-                }
+                changeControlsVisibility(select);
+                // for (let i = 0; i < selects.length; i++) {
+                //     selects[i].addEventListener('change', listener);
+                // }
             });
             
             prepareFields(scheduler.all_fields);
