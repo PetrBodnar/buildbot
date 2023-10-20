@@ -34,6 +34,8 @@ class _buildProperties {
                             $scope.apkUrl = step.urls[0].url;
                         } else if (step.name == "upload OBB") {
                             $scope.obbUrl = step.urls[0].url;
+                        } else if (step.name == "set build.zip url") {
+                            $scope.steamBuildUrl = step.urls[0].url;
                         }
                     }
                 }
