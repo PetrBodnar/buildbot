@@ -12,6 +12,7 @@
         "test-watch": "karma start --auto-watch --no-single-run"
     },
     "devDependencies": {
+        "@types/angular": "^1.8.9",
         "angular-mocks": "^1.7.9",
         "buildbot-build-common": "link:../build_common",
         "copy-webpack-plugin": "^5.0.3",
